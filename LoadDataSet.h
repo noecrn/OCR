@@ -1,0 +1,1 @@
+void load_mnist(void);
