@@ -115,7 +115,7 @@ int angle = 0;
 
 void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
-    angle = angle + 90;
+    angle = angle + 5;
     char rotation_command_left[256];
     sprintf(rotation_command_left, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
     int status = system(rotation_command_left);
@@ -128,7 +128,7 @@ void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
 
 void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
-    angle = angle - 90;
+    angle = angle - 5;
     char rotation_command_right[256];
     sprintf(rotation_command_right, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
     int status = system(rotation_command_right);
