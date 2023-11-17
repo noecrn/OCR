@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 
-char *rotate_filename = "rotate_image.png";
+char *rotate_filename = ".rotate_image.png";
 char *global_filename = NULL;
 
 
@@ -117,7 +117,7 @@ void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
     angle = angle + 90;
     char rotation_command_left[256];
-    sprintf(rotation_command_left, "../rotate/save %s %d rotate_image.png", global_filename, angle);
+    sprintf(rotation_command_left, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
     int status = system(rotation_command_left);
 
     if (status != 0) {
@@ -130,7 +130,7 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
     angle = angle - 90;
     char rotation_command_right[256];
-    sprintf(rotation_command_right, "../rotate/save %s %d rotate_image.png", global_filename, angle);
+    sprintf(rotation_command_right, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
     int status = system(rotation_command_right);
 
     if (status != 0) {
@@ -145,6 +145,21 @@ gpointer data)
 {
     gtk_main_quit(); // Ceci arrête la boucle principale GTK
     return FALSE; // Si vous ne retournez pas FALSE, la fenêtre ne se fermera pas
+}
+
+void unhide_file() {
+    if (rotate_filename[0] == '.') {
+        char newname[256];
+        strcpy(newname, &rotate_filename[1]);
+
+        if (rename(rotate_filename, newname) == 0) {
+            printf("File successfully renamed\n");
+        } else {
+            printf("Error renaming file\n");
+        }
+    } else {
+        printf("File is not hidden\n");
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -181,6 +196,8 @@ int main(int argc, char *argv[]) {
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(on_rotateRightButton_clicked), NULL);
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(load_image), imageWidget);
 
+    GtkWidget *saveButton = GTK_WIDGET(gtk_builder_get_object(builder, "saveButton"));
+    g_signal_connect(saveButton, "clicked", G_CALLBACK(unhide_file), NULL);
    
     // Désactivez la redimension de la fenêtre
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
