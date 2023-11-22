@@ -1,66 +1,80 @@
+#include <SDL.h>
+#include <SDL_image.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include "LoadDataSet.h"
+#include <string.h>
+typedef struct {
+    unsigned char* pixels;
+    int width;
+    int height;
+    char* label;
+} ImageData;
 
-#define IMAGE_MAGIC 2051
-#define LABEL_MAGIC 2049
+ImageData loadImage(const char* filename) {
+    ImageData imageData;
+    imageData.pixels = NULL;
+    imageData.width = 0;
+    imageData.height = 0;
+    imageData.label = NULL;
 
-void load_mnist(uint8_t images[NUM_IMAGES][IMAGE_SIZE], uint8_t labels[NUM_IMAGES]) {
-    FILE *fimg = fopen("/Users/noecrn/Documents/OCR/TrainningSets/train-images.idx3-ubyte", "rb");
-    FILE *flabel = fopen("/Users/noecrn/Documents/OCR/TrainningSets/train-labels.idx1-ubyte", "rb");
+    SDL_Surface* surface = NULL;
+    surface = IMG_Load(filename);
 
-    if (!fimg || !flabel) {
-        printf("Failed to open MNIST files\n");
-        exit(1);
+    if (surface == NULL) {
+        printf("Failed to load image: %s\n", SDL_GetError());
+        return imageData;
     }
 
-    uint32_t magic, num_items;
+    imageData.width = surface->w;
+    imageData.height = surface->h;
 
-    // Read image file header
-    if (fread(&magic, 4, 1, fimg) != 1 || fread(&num_items, 4, 1, fimg) != 1) {
-        printf("Failed to read image file header\n");
-        exit(1);
+    imageData.pixels = (unsigned char*)malloc(imageData.width * imageData.height * sizeof(unsigned char));
+    if (imageData.pixels == NULL) {
+        printf("Failed to allocate memory for pixels\n");
+        SDL_FreeSurface(surface);
+        return imageData;
     }
 
-    magic = ntohl(magic);
-    num_items = ntohl(num_items);
-
-    if (magic != IMAGE_MAGIC || num_items != NUM_IMAGES) {
-        printf("Invalid image file header\n");
-        exit(1);
-    }
-
-    // Read label file header
-    if (fread(&magic, 4, 1, flabel) != 1 || fread(&num_items, 4, 1, flabel) != 1) {
-        printf("Failed to read label file header\n");
-        exit(1);
-    }
-
-    magic = ntohl(magic);
-    num_items = ntohl(num_items);
-
-    if (magic != LABEL_MAGIC || num_items != NUM_IMAGES) {
-        printf("Invalid label file header\n");
-        exit(1);
-    }
-
-    // Read images and labels
-    for (int i = 0; i < NUM_IMAGES; i++) {
-        for (int j = 0; j < IMAGE_SIZE; j++) {
-            uint8_t pixel;
-            if (fread(&pixel, 1, 1, fimg) != 1) {
-                printf("Failed to read pixel data\n");
-                exit(1);
-            }
-            images[i][j] = pixel;
-        }
-        if (fread(&labels[i], 1, 1, flabel) != 1) {
-            printf("Failed to read label data\n");
-            exit(1);
+    for (int y = 0; y < imageData.height; y++) {
+        for (int x = 0; x < imageData.width; x++) {
+            Uint32 pixel = ((Uint32*)surface->pixels)[y * imageData.width + x];
+            Uint8 r, g, b;
+            SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+            unsigned char grayscale = (unsigned char)(0.2989 * r + 0.5870 * g + 0.1140 * b);
+            imageData.pixels[y * imageData.width + x] = grayscale;
         }
     }
 
-    fclose(fimg);
-    fclose(flabel);
+    SDL_FreeSurface(surface);
+
+    // Extract the label from the filename
+    char* labelStart = strrchr(filename, '/');
+    if (labelStart == NULL) {
+        labelStart = strrchr(filename, '\\');
+    }
+    if (labelStart != NULL) {
+        labelStart++; // Move past the last slash or backslash
+        char* labelEnd = strchr(labelStart, '.');
+        if (labelEnd != NULL) {
+            int labelLength = labelEnd - labelStart;
+            imageData.label = (char*)malloc((labelLength + 1) * sizeof(char));
+            strncpy(imageData.label, labelStart, labelLength);
+            imageData.label[labelLength] = '\0';
+        }
+    }
+
+    return imageData;
+}
+
+int main() {
+    ImageData* imageData = loadImage("TrainningSets/1.jpg");
+    if (imageData != NULL) {
+        printf("Label: %d\n", imageData->label);
+        printf("Width: %d\n", imageData->width);
+        printf("Height: %d\n", imageData->height);
+        printf("Pixels: %p\n", imageData->pixels);
+        free(imageData->pixels);
+        free(imageData);
+    }
+    return 0;
 }

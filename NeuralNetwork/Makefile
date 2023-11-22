@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. `sdl2-config --cflags`
+LIBS=`sdl2-config --libs`
 DEPS = NeuralNetwork.h LoadDataSet.h
 OBJ = NeuralNetwork.o LoadDataSet.o 
 
@@ -7,4 +8,4 @@ OBJ = NeuralNetwork.o LoadDataSet.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 NeuralNetwork: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
