@@ -3,8 +3,15 @@
 char *rotate_filename = ".rotate_image.png";
 char *global_filename = NULL;
 
+GtkWidget *rotateLeftButton;
+GtkWidget *rotateRightButton;
+GtkWidget *saveButton;
+GtkWidget *solveButton;
 
 void load_image(const char *filename, gpointer user_data);
+void on_loadButton_clicked(GtkButton *button, gpointer user_data);
+void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data);
+void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data);
 
 void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data); 
@@ -67,6 +74,11 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
         // Libérez la mémoire allouée pour le nom du fichier
         g_free(filename);
     }
+
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(saveButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(solveButton), TRUE);
 
     // Fermez la boîte de dialogue
     gtk_widget_destroy(dialog);
@@ -168,8 +180,6 @@ int main(int argc, char *argv[]) {
     GtkBuilder *builder;
     GtkWidget *window;
     GtkWidget *imageWidget;
-    GtkWidget *rotateLeftButton;
-    GtkWidget *rotateRightButton;
 
     builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, "interface.glade", NULL);
@@ -179,6 +189,7 @@ int main(int argc, char *argv[]) {
 
     GtkWidget *rotateButton = GTK_WIDGET(gtk_builder_get_object(builder, "rotateButton"));   
     GtkWidget *loadButton = GTK_WIDGET(gtk_builder_get_object(builder, "loadButton"));
+    solveButton = GTK_WIDGET(gtk_builder_get_object(builder, "solveButton"));
     g_signal_connect(loadButton, "clicked", G_CALLBACK(on_loadButton_clicked), imageWidget);
     
 
@@ -196,13 +207,19 @@ int main(int argc, char *argv[]) {
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(on_rotateRightButton_clicked), NULL);
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(load_image), imageWidget);
 
-    GtkWidget *saveButton = GTK_WIDGET(gtk_builder_get_object(builder, "saveButton"));
+    saveButton = GTK_WIDGET(gtk_builder_get_object(builder, "saveButton"));
     g_signal_connect(saveButton, "clicked", G_CALLBACK(unhide_file), NULL);
    
     // Désactivez la redimension de la fenêtre
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
     gtk_window_set_default_size(GTK_WINDOW(window), 900, 600);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(saveButton), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(solveButton), FALSE);
+    
     
     //gtk_window_is_maximized(GTK_WINDOW(window));
 
