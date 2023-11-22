@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 
 char *rotate_filename = ".rotate_image.png";
+char *solve_filename = "solved_grid.png";
 char *global_filename = NULL;
 
 GtkWidget *rotateLeftButton;
@@ -8,7 +9,7 @@ GtkWidget *rotateRightButton;
 GtkWidget *saveButton;
 GtkWidget *solveButton;
 
-void load_image(const char *filename, gpointer user_data);
+void load_image_rotate(const char *filename, gpointer user_data);
 void on_loadButton_clicked(GtkButton *button, gpointer user_data);
 void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data);
 void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data);
@@ -84,7 +85,7 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
     gtk_widget_destroy(dialog);
 }
 
-void load_image(const char *filename, gpointer user_data) {
+void load_image_rotate(const char *filename, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data);
 
     // Load the image into a GdkPixbuf object
@@ -123,6 +124,45 @@ void load_image(const char *filename, gpointer user_data) {
     }
 }
 
+void load_image_solve(const char *filename, gpointer user_data) {
+    GtkWidget *imageWidget = GTK_WIDGET(user_data);
+
+    // Load the image into a GdkPixbuf object
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(solve_filename, NULL);
+
+    // Cast user_data to GtkImage
+    GtkImage *image = GTK_IMAGE(user_data);
+
+    if (pixbuf != NULL) {
+        // Set the desired maximum size (for example, width of 200 pixels)
+        int max_width = 500;
+        int width = gdk_pixbuf_get_width(pixbuf);
+        int height = gdk_pixbuf_get_height(pixbuf);
+
+        // Calculate the new height while maintaining the ratio
+        int new_width, new_height;
+        if (width > max_width) {
+            new_width = max_width;
+            new_height = (height * max_width) / width;
+        } else {
+            new_width = width;
+            new_height = height;
+        } 
+
+        // Resize the image
+        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, new_width, 
+        new_height, GDK_INTERP_BILINEAR);
+
+        // Display the resized image in the GtkImage widget
+        gtk_image_set_from_pixbuf(image, scaled_pixbuf);
+
+        // Free the memory allocated for the GdkPixbufs
+        g_object_unref(pixbuf);
+        g_object_unref(scaled_pixbuf);
+        printf("Filename: %s\n", solve_filename);
+    }
+}
+
 int angle = 0;
 
 void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
@@ -144,6 +184,18 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
     char rotation_command_right[256];
     sprintf(rotation_command_right, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
     int status = system(rotation_command_right);
+
+    if (status != 0) {
+        // Handle errors from executing the rotation program
+        g_print("Error executing the rotation program.\n");
+    }
+}
+
+void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
+    // Use the system() function to execute the rotation program
+    char solve_command[256];
+    //sprintf(solve_command, "../solve/solve .rotate_image.png solved_grid.png");
+    int status = system(solve_command);
 
     if (status != 0) {
         // Handle errors from executing the rotation program
@@ -192,6 +244,8 @@ int main(int argc, char *argv[]) {
     solveButton = GTK_WIDGET(gtk_builder_get_object(builder, "solveButton"));
     g_signal_connect(loadButton, "clicked", G_CALLBACK(on_loadButton_clicked), imageWidget);
     
+    g_signal_connect(solveButton, "clicked", G_CALLBACK(on_solveButton_clicked), NULL);
+    g_signal_connect(solveButton, "clicked", G_CALLBACK(load_image_solve), imageWidget);
 
     // Connectez le signal de fermeture de la fenêtre à la fonction de gestion
     g_signal_connect(window, "delete-event", 
@@ -203,9 +257,9 @@ int main(int argc, char *argv[]) {
 
     // Connect the buttons to the respective functions
     g_signal_connect(rotateLeftButton, "clicked", G_CALLBACK(on_rotateLeftButton_clicked), NULL);
-    g_signal_connect(rotateLeftButton, "clicked", G_CALLBACK(load_image), imageWidget);
+    g_signal_connect(rotateLeftButton, "clicked", G_CALLBACK(load_image_rotate), imageWidget);
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(on_rotateRightButton_clicked), NULL);
-    g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(load_image), imageWidget);
+    g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(load_image_rotate), imageWidget);
 
     saveButton = GTK_WIDGET(gtk_builder_get_object(builder, "saveButton"));
     g_signal_connect(saveButton, "clicked", G_CALLBACK(unhide_file), NULL);
