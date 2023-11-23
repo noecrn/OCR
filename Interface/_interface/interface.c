@@ -2,12 +2,14 @@
 
 char *rotate_filename = ".rotate_image.png";
 char *solve_filename = "solved_grid.png";
+char *grid_filename = "grid_detection.png";
 char *global_filename = NULL;
 
 GtkWidget *rotateLeftButton;
 GtkWidget *rotateRightButton;
 GtkWidget *saveButton;
 GtkWidget *solveButton;
+GtkWidget *gridButton;
 
 void load_image_rotate(const char *filename, gpointer user_data);
 void on_loadButton_clicked(GtkButton *button, gpointer user_data);
@@ -80,6 +82,7 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
     gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(saveButton), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(solveButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gridButton), TRUE);
 
     // Fermez la boîte de dialogue
     gtk_widget_destroy(dialog);
@@ -163,6 +166,45 @@ void load_image_solve(const char *filename, gpointer user_data) {
     }
 }
 
+void load_image_grid(const char *filename, gpointer user_data) {
+    GtkWidget *imageWidget = GTK_WIDGET(user_data);
+
+    // Load the image into a GdkPixbuf object
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(grid_filename, NULL);
+
+    // Cast user_data to GtkImage
+    GtkImage *image = GTK_IMAGE(user_data);
+
+    if (pixbuf != NULL) {
+        // Set the desired maximum size (for example, width of 200 pixels)
+        int max_width = 500;
+        int width = gdk_pixbuf_get_width(pixbuf);
+        int height = gdk_pixbuf_get_height(pixbuf);
+
+        // Calculate the new height while maintaining the ratio
+        int new_width, new_height;
+        if (width > max_width) {
+            new_width = max_width;
+            new_height = (height * max_width) / width;
+        } else {
+            new_width = width;
+            new_height = height;
+        } 
+
+        // Resize the image
+        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, new_width, 
+        new_height, GDK_INTERP_BILINEAR);
+
+        // Display the resized image in the GtkImage widget
+        gtk_image_set_from_pixbuf(image, scaled_pixbuf);
+
+        // Free the memory allocated for the GdkPixbufs
+        g_object_unref(pixbuf);
+        g_object_unref(scaled_pixbuf);
+        printf("Filename: %s\n", solve_filename);
+    }
+}
+
 int angle = 0;
 
 void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
@@ -201,6 +243,50 @@ void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
         // Handle errors from executing the rotation program
         g_print("Error executing the rotation program.\n");
     }
+}
+
+void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
+    GtkWidget *imageWidget = GTK_WIDGET(user_data); 
+
+    printf("Grid button clicked\n");
+
+    // Create a confirmation dialog
+    GtkWidget *dialog_grid = gtk_dialog_new_with_buttons("Grid confirmation",
+                                                         NULL,
+                                                         GTK_DIALOG_MODAL,
+                                                         "Yes",
+                                                         GTK_RESPONSE_YES,
+                                                         "No",
+                                                         GTK_RESPONSE_NO,
+                                                         NULL);
+
+    // Create a label and add it to the dialog's content area
+    GtkWidget *label = gtk_label_new("Is the grid correctly detected?");
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog_grid));
+    gtk_container_add(GTK_CONTAINER(content_area), label);
+    gtk_widget_show(label);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog_grid), GTK_RESPONSE_YES);
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog_grid));
+
+    if (response == GTK_RESPONSE_NO) {
+        printf("Grid is not correctly detected\n");
+        // Use the system() function to execute the grid program
+        char grid_command[256];
+        //sprintf(grid_command, "../grid/grid .rotate_image.png solved_grid.png");
+        int status = system(grid_command);
+
+        if (status != 0) {
+            // Handle errors from executing the grid program
+            g_print("Error executing the grid program.\n");
+        }
+    }
+    else{
+        printf("Grid is correctly detected\n");
+    }
+
+    gtk_widget_destroy(dialog_grid);
 }
 
 // Déclaration de la fonction on_window_delete_event
@@ -263,6 +349,10 @@ int main(int argc, char *argv[]) {
 
     saveButton = GTK_WIDGET(gtk_builder_get_object(builder, "saveButton"));
     g_signal_connect(saveButton, "clicked", G_CALLBACK(unhide_file), NULL);
+
+    gridButton = GTK_WIDGET(gtk_builder_get_object(builder, "gridButton"));
+    g_signal_connect(gridButton, "clicked", G_CALLBACK(load_image_grid), imageWidget);
+    g_signal_connect(gridButton, "clicked", G_CALLBACK(on_gridButton_clicked), NULL);
    
     // Désactivez la redimension de la fenêtre
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -273,7 +363,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(saveButton), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(solveButton), FALSE);
-    
+    gtk_widget_set_sensitive(GTK_WIDGET(gridButton), FALSE);
     
     //gtk_window_is_maximized(GTK_WINDOW(window));
 
