@@ -256,15 +256,31 @@ void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
                                                          GTK_DIALOG_MODAL,
                                                          "Yes",
                                                          GTK_RESPONSE_YES,
-                                                         "No",
+                                                         "Try Again",
                                                          GTK_RESPONSE_NO,
-                                                         NULL);
+                                                         NULL); // NULL sentinel
+
+    // Set the default size of the dialog
+    gtk_window_set_default_size(GTK_WINDOW(dialog_grid), 200, 100);
+
+    // Set the border width (margin) of the dialog
+    gtk_container_set_border_width(GTK_CONTAINER(dialog_grid), 10);
 
     // Create a label and add it to the dialog's content area
     GtkWidget *label = gtk_label_new("Is the grid correctly detected?");
+    gtk_widget_set_size_request(label, 180, 100);  // Set the size of the label
     GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog_grid));
     gtk_container_add(GTK_CONTAINER(content_area), label);
     gtk_widget_show(label);
+
+    // Create a box for the buttons
+    GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(button_box, GTK_ALIGN_CENTER);
+
+    // Add the box to the dialog's content area
+    gtk_container_add(GTK_CONTAINER(content_area), button_box);
+    gtk_widget_show(button_box);
 
     gtk_dialog_set_default_response(GTK_DIALOG(dialog_grid), GTK_RESPONSE_YES);
 
@@ -281,6 +297,8 @@ void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
             // Handle errors from executing the grid program
             g_print("Error executing the grid program.\n");
         }
+
+        on_gridButton_clicked(button, imageWidget);
     }
     else{
         printf("Grid is correctly detected\n");
