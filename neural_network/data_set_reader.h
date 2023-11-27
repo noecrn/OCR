@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <stdint.h>
+#include <jpeglib.h>
 
 #define PIXEL_COUNT 784
 #define HEIGHT 28

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <stdint.h>
+#include <jpeglib.h>
 
 #include "data_set_reader.h"
 
@@ -86,7 +87,7 @@ void freeImage(struct Image *img) {
 //}
 
 
-/*void createJPEG(const char *filename, int *pixels) {
+void createJPEG(const char *filename, int *pixels) {
     // Ouvrir le fichier pour écriture binaire
     FILE *file = fopen(filename, "wb");
     if (!file) {
@@ -138,7 +139,7 @@ void freeImage(struct Image *img) {
     // Libérer la mémoire
     free(row);
     jpeg_destroy_compress(&cinfo);
-}*/
+}
 
 
 void print_pixels(int *pixels)
@@ -161,7 +162,7 @@ void data(int numTraining, int numTesting, double **training, double *expectedTr
     fgets(line, sizeof(line), file);
 
     // Allocation dynamique pour chaque tableau d'entiers
-    for (int i = 0; i < numTraining%29000; ++i) 
+    for (int i = 0; i < numTraining; ++i) 
     {
 	fgets(line, sizeof(line), file);
 	struct Image *img = initImage(line);
@@ -183,7 +184,7 @@ void data(int numTraining, int numTesting, double **training, double *expectedTr
     }
 
     // Allocation dynamique pour chaque tableau d'entiers
-    for (int i = 0; i < numTesting%29000; ++i) 
+    for (int i = 0; i < numTesting; ++i) 
     {
 	fgets(line, sizeof(line), file);
         struct Image *img = initImage(line);
