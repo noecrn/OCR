@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include <stdint.h>
-#include <jpeglib.h>
 
 #include "data_set_reader.h"
 
@@ -87,7 +86,7 @@ void freeImage(struct Image *img) {
 //}
 
 
-void createJPEG(const char *filename, int *pixels) {
+/*void createJPEG(const char *filename, int *pixels) {
     // Ouvrir le fichier pour écriture binaire
     FILE *file = fopen(filename, "wb");
     if (!file) {
@@ -139,7 +138,7 @@ void createJPEG(const char *filename, int *pixels) {
     // Libérer la mémoire
     free(row);
     jpeg_destroy_compress(&cinfo);
-}
+}*/
 
 
 void print_pixels(int *pixels)

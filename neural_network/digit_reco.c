@@ -1,4 +1,3 @@
-
 #include "digit_reco.h"
 #include <math.h>
 #include "init_NN.h"
@@ -8,6 +7,7 @@
 #include "data_set_reader.h"
 #include <math.h>
 #include <time.h>
+#include "save_network_details.h"
 
 int main(int argc, char* argv[])
 {
@@ -80,9 +80,9 @@ int main(int argc, char* argv[])
         right += (expectedTest[i] == (double)maxindex);
     }
     printf("Results of the testing : %li / %d found.\n", right, numTesting);
+    save_weights(neuralnetwork, "weights.txt");
 
     freeData(numTraining, numTesting, training, expectedTrain, testing, expectedTest);
 
     return EXIT_SUCCESS;
 }
-

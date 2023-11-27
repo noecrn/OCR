@@ -1,0 +1,1 @@
+void save_weights(NeuralNetwork neuralnetwork, const char *filename);
