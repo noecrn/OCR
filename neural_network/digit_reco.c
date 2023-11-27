@@ -20,11 +20,11 @@ int main(int argc, char* argv[])
     int numTraining = atoi(argv[1]);
     int numTesting = atoi(argv[2]);
 
-    if(numTraining+numTesting > 29000)
+    /*if(numTraining+numTesting > 29000)
     {
 	    fprintf(stderr, "database <= 29000\n");
 	    return 1;
-    }
+    }*/
 
     int nboutput = 10;
     int layer[3] = {20, 15, nboutput};
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
     data(numTraining, numTesting, training, expectedTrain, testing, expectedTest);
 
-    for(size_t i = 0; i < numTraining; i++)
+    for(size_t i = 0; i < numTraining%29000; i++)
     {
         double expec[nboutput];
         for(size_t k = 0; k < nboutput; k++) expec[k] = 0.0;
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
         feedForward(neuralnetwork, training[i], 784);
         backPropagation(neuralnetwork, expec);
-        updateWeigth(neuralnetwork, training[i], 784, 2.0);
+        updateWeigth(neuralnetwork, training[i], 784, 0.2);
     }
 
     clock_t end = clock();
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
     size_t right = 0;
     printf("Testing...\n");
-    for(size_t i = 0; i < numTesting; i++)
+    for(size_t i = 0; i < numTesting%29000; i++)
     {
         feedForward(neuralnetwork, testing[i], 784);
         Layer *layer = neuralnetwork.end -1;

@@ -151,18 +151,18 @@ void print_pixels(int *pixels)
 
 void data(int numTraining, int numTesting, double **training, double *expectedTrain, double **testing, double *expectedTest)
 {
-    if(numTraining+numTesting > 29000)
+    /*if(numTraining+numTesting > 29000)
     {
 	    fprintf(stderr, "database <= 29000\n");
 	    return;
-    }
+    }*/
 
     FILE *file = fopen(DATASET, "r");
     char line[5000];
     fgets(line, sizeof(line), file);
 
     // Allocation dynamique pour chaque tableau d'entiers
-    for (int i = 0; i < numTraining; ++i) 
+    for (int i = 0; i < numTraining%29000; ++i) 
     {
 	fgets(line, sizeof(line), file);
 	struct Image *img = initImage(line);
@@ -184,7 +184,7 @@ void data(int numTraining, int numTesting, double **training, double *expectedTr
     }
 
     // Allocation dynamique pour chaque tableau d'entiers
-    for (int i = 0; i < numTesting; ++i) 
+    for (int i = 0; i < numTesting%29000; ++i) 
     {
 	fgets(line, sizeof(line), file);
         struct Image *img = initImage(line);
