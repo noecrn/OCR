@@ -1,5 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace cv;
 using namespace std;
@@ -14,18 +16,37 @@ int main() {
         return -1;
     }
 
-    // Sample Sudoku grid with digits (replace this with your actual data)
-    int sudokuGrid[9][9] = {
-        {5, 3, 4, 6, 7, 8, 9, 1, 2},
-        {6, 7, 2, 1, 9, 5, 3, 4, 8},
-        {1, 9, 8, 3, 4, 2, 5, 6, 7},
-        {8, 5, 9, 7, 6, 1, 4, 2, 3},
-        {4, 2, 6, 8, 5, 3, 7, 9, 1},
-        {7, 1, 3, 9, 2, 4, 8, 5, 6},
-        {9, 6, 1, 5, 3, 7, 2, 8, 4},
-        {2, 8, 7, 4, 1, 9, 6, 3, 5},
-        {3, 4, 5, 2, 8, 6, 1, 7, 9}
-    };
+    // Load Sudoku grid from text file
+    int sudokuGrid[9][9] = {0};  // Initialize all cells to 0
+    ifstream file("grid_00");
+    string line;
+    int row = 0;
+
+    while (getline(file, line)) {
+        // Skip empty lines
+        if (line.empty()) continue;
+
+        // Parse characters and convert them to integers
+        for (int col = 0; col < 9; col++) {
+            if (line[col] >= '1' && line[col] <= '9') {
+                sudokuGrid[row][col] = line[col] - '0';  // Convert char to int
+            }
+        }
+
+        row++;
+    }
+
+    file.close();
+
+    for (size_t i = 0; i < 9; i++)
+    {
+        for (size_t j = 0; j < 9; j++)
+        {
+            printf("%d ", sudokuGrid[i][j]);
+        }
+        printf("\n");
+    }
+    
 
     // Font settings for displaying digits
     int fontFace = FONT_HERSHEY_SIMPLEX;
