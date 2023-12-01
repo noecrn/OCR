@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include "../../display/display_solved.h"
 
 char *rotate_filename = ".rotate_image.png";
 char *solve_filename = "solved_grid.png";
@@ -10,6 +11,7 @@ GtkWidget *rotateRightButton;
 GtkWidget *saveButton;
 GtkWidget *solveButton;
 GtkWidget *gridButton;
+GtkWidget *entry[9][9];
 
 void load_image_rotate(const char *filename, gpointer user_data);
 void on_loadButton_clicked(GtkButton *button, gpointer user_data);
@@ -330,6 +332,79 @@ void unhide_file() {
     }
 }
 
+void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
+    int sudokuGrid[9][9];
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            const char *text = gtk_entry_get_text(GTK_ENTRY(entry[i][j]));
+            if (text[0] >= '1' && text[0] <= '9') {
+                sudokuGrid[i][j] = text[0] - '0';  // Convert char to int
+            } else {
+                sudokuGrid[i][j] = 0;  // Empty cell
+            }
+        }
+    }
+
+    FILE *file = fopen("grid_00", "w");
+    if (!file) {
+        printf("Error opening file\n");
+        return;
+    }
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (j % 3 == 0 && j != 0) {
+                fprintf(file, " ");
+            }
+            if (sudokuGrid[i][j] != 0) {
+                fprintf(file, "%d", sudokuGrid[i][j]);
+            } else {
+                fprintf(file, ".");
+            }
+        }
+        fprintf(file, "\n");
+        if (i % 3 == 2 && i != 8) {
+            fprintf(file, "\n");
+        }
+    }
+
+    fclose(file);
+
+    //call the display function from the display_solved.c file
+    display_solved(sudokuGrid);
+
+    // Close the window
+    GtkWidget *window = gtk_widget_get_toplevel(widget);
+    if (gtk_widget_is_toplevel(window)) {
+        gtk_widget_destroy(window);
+    }
+}
+
+void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Enter Sudoku Grid");
+    gtk_window_set_default_size(GTK_WINDOW(window), 200, 200);
+
+    GtkWidget *grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(window), grid);
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            entry[i][j] = gtk_entry_new();
+            gtk_entry_set_max_length(GTK_ENTRY(entry[i][j]), 1); 
+            gtk_entry_set_width_chars(GTK_ENTRY(entry[i][j]), 2);  // Set width of text input field
+            gtk_grid_attach(GTK_GRID(grid), entry[i][j], j, i, 1, 1);
+        }
+    }
+
+    GtkWidget *saveButton = gtk_button_new_with_label("Save");
+    gtk_grid_attach(GTK_GRID(grid), saveButton, 0, 9, 9, 1);
+    g_signal_connect(saveButton, "clicked", G_CALLBACK(on_saveButton_clicked), NULL);
+
+    gtk_widget_show_all(window);
+}
+
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
@@ -371,6 +446,9 @@ int main(int argc, char *argv[]) {
     gridButton = GTK_WIDGET(gtk_builder_get_object(builder, "gridButton"));
     g_signal_connect(gridButton, "clicked", G_CALLBACK(load_image_grid), imageWidget);
     g_signal_connect(gridButton, "clicked", G_CALLBACK(on_gridButton_clicked), NULL);
+
+    GtkWidget *enterButton = GTK_WIDGET(gtk_builder_get_object(builder, "enterButton"));
+    g_signal_connect(enterButton, "clicked", G_CALLBACK(on_enterButton_clicked), NULL);
    
     // Désactivez la redimension de la fenêtre
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);

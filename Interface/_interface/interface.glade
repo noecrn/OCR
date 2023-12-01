@@ -15,7 +15,7 @@
         <child>
           <object class="GtkButton" id="loadButton">
             <property name="label" translatable="yes">Load</property>
-            <property name="width-request">150</property>
+            <property name="width-request">60</property>
             <property name="height-request">50</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
@@ -42,6 +42,22 @@
           <packing>
             <property name="x">650</property>
             <property name="y">150</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="enterButton">
+            <property name="label" translatable="yes">Enter</property>
+            <property name="width-request">60</property>
+            <property name="height-request">50</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Grid detection</property>
+            <signal name="clicked" handler="on_gridButton_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">725</property>
+            <property name="y">50</property>
           </packing>
         </child>
         <child>
