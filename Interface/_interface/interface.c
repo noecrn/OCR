@@ -1,5 +1,4 @@
 #include <gtk/gtk.h>
-#include "../../display/display_solved.h"
 
 char *rotate_filename = ".rotate_image.png";
 char *solve_filename = "solved_grid.png";
@@ -372,7 +371,7 @@ void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
     fclose(file);
 
     //call the display function from the display_solved.c file
-    display_solved(sudokuGrid);
+    //display_solved(sudokuGrid);
 
     // Close the window
     GtkWidget *window = gtk_widget_get_toplevel(widget);
