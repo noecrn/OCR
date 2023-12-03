@@ -1,24 +1,56 @@
 # Makefile
 
+#TARGET = prog
+#LIBS = `pkg-config --libs sdl2 SDL2_image` -lm
+#CC = gcc
+#CFLAGS = -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image` 
+
+#.PHONY: default all clean
+
+#default: $(TARGET)
+#all: default
+
+#OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
+#HEADERS = $(wildcard *.h)
+
+#%.o: %.c $(HEADERS)
+#	$(CC) $(CFLAGS) -c $< -o $@
+
+#.PRECIOUS: $(TARGET) $(OBJECTS)
+
+#$(TARGET): $(OBJECTS)
+#	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
+
+#clean:
+#	-rm -f *.o
+#	-rm -f $(TARGET)
+	
+# END
+
+
+TARGET = prog
+LIBS = `pkg-config --libs sdl2 SDL2_image` -lm
 CC = gcc
-CPPFLAGS =
-CFLAGS = -g -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image` 
-LDFLAGS =
-LDLIBS = `pkg-config --libs sdl2 SDL2_image` -lm
+CFLAGS = -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image`
 
-all: detection3
+.PHONY: default all clean
 
-SRC = detection3.c
-OBJ = ${SRC:.c=.o}
-EXE = ${SRC:.c=}
+default: $(TARGET)
+all: default
 
-detection: detection3.o
+SOURCES = grid_detect.c main.c
+HEADERS = grid_detect.h
+OBJECTS = $(SOURCES:.c=.o)
 
-.PHONY: clean
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PRECIOUS: $(TARGET) $(OBJECTS)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
 clean:
-	${RM} ${OBJ}
-	${RM} ${EXE}
-
-# END
+	-rm -f *.o
+	-rm -f $(TARGET)
 
