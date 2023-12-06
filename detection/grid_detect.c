@@ -11,10 +11,7 @@
 #include <err.h>
 
 
-
 SDL_Surface *Surface = NULL;
-
-    
 
 
 void rotate(double angle)

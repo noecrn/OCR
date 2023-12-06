@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     grid (&x0,&y0,&x1,&y1,&x2,&y2,&x3,&y3,&l0,&l1,&l2,&l3,argv[1]);
 
     FILE *co;
-    co = fopen("../Interface/_interface/co", "w");
+    co = fopen("../display/co", "w");
 
     fprintf(co, "%d\n", x0);
     fprintf(co, "%d\n", y0);
