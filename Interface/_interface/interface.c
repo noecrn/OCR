@@ -49,7 +49,7 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
 
         if (pixbuf != NULL) {
             // Set the desired maximum size (for example, width of 200 pixels)
-            int max_width = 500;
+            int max_width = 800;
             int width = gdk_pixbuf_get_width(pixbuf);
             int height = gdk_pixbuf_get_height(pixbuf);
 
@@ -245,12 +245,20 @@ void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
         // Handle errors from executing the rotation program
         g_print("Error executing the rotation program.\n");
     }
+    
+    // disable the rotate buttons
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
 }
 
 void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data); 
 
     printf("Grid button clicked\n");
+
+    // disable the rotate buttons
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
 }
 
 // Déclaration de la fonction on_window_delete_event
@@ -290,7 +298,7 @@ void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
         }
     }
 
-    FILE *file = fopen("grid_00", "w");
+    FILE *file = fopen("../../display/grid_00", "w");
     if (!file) {
         printf("Error opening file\n");
         return;
@@ -315,14 +323,13 @@ void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
 
     fclose(file);
 
-    //call the display function from the display_solved.c file
-    //display_solved(sudokuGrid);
-
-    // Close the window
     GtkWidget *window = gtk_widget_get_toplevel(widget);
     if (gtk_widget_is_toplevel(window)) {
         gtk_widget_destroy(window);
     }
+
+    // Execute the display_solved file
+    int result = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00");
 }
 
 void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
@@ -397,7 +404,7 @@ int main(int argc, char *argv[]) {
     // Désactivez la redimension de la fenêtre
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
-    gtk_window_set_default_size(GTK_WINDOW(window), 900, 600);
+    gtk_window_set_default_size(GTK_WINDOW(window), 1440, 960);
 
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
