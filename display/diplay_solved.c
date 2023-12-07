@@ -8,29 +8,42 @@ using namespace std;
 
 typedef int Grid[9][9];
 
-int main() {
+int main(int argc, char* argv[]) {
+
+	// if in argument there is a file with the coordinates of the grid we use it
+	// else we display the grid in full screen
+
+    // Check if filenames are provided
+    if (argc < 2) {
+        printf("Please provide an image filename and a grid filename\n");
+        return 1;
+    }
+	
+
+    // The filenames are the first and second arguments
+    const char* imageFilename = argv[1];
+    const char* gridFilename = argv[2];
+	const char* cooFilenamle = argv[3];
+
     // Load Sudoku grid image
-    Mat sudokuImage = imread("sudoku_image.jpg", IMREAD_COLOR);
+    Mat sudokuImage = imread(imageFilename, IMREAD_COLOR);
 
     // Check if the image is loaded successfully
     if (sudokuImage.empty()) {
-        cout << "Error loading image" << endl;
+        printf("Error loading image\n");
         return -1;
     }
 
 //------File lecture----------------------------------------------
-	//file content stocked in fileContent 
-	
-	FILE* fichier = NULL;
 
-	fichier = fopen("grid_00", "r");
+    // Open the grid file
+    FILE* fichier = fopen(gridFilename, "r");
 
-	if (fichier == NULL)//manage error if file not ok 
-	{
-		printf("ERREUR: Impossible file opening");
-		fclose(fichier);
-		return 1;
-	}
+    // Check if the file is opened successfully
+    if (fichier == NULL) {
+        printf("Error opening grid file\n");
+        return 1;
+    }
 
 	
 	char fileContent[105] = "";
@@ -84,21 +97,41 @@ int main() {
 //------End of Creation of the grid--------------------------------	
 
 //------Read the coo file and asign x0, y0... variables------------
-	std::string filename = "co";
-	std::ifstream file(filename);
-	if (!file) {
-		std::cerr << "Unable to open file: " << filename << std::endl;
-		return 1;  // Return an error code
-	}
-
 	int x0, y0, x1, y1, x2, y2, x3, y3;
-	if (!(file >> x0 >> y0 >> x1 >> y1 >> x2 >> y2 >> x3 >> y3)) {
-		std::cerr << "Error: file doesn't contain 8 integers" << std::endl;
-		return 1;  // Return an error code
-	}
 
-	// Print the values
-	std::cout << x0 << '\n' << y0 << '\n' << x1 << '\n' << y1 << '\n' << x2 << '\n' << y2 << '\n' << x3 << '\n' << y3 << '\n';
+	if (argc == 4)
+	{
+		printf("argc = 4\n");
+		std::string filename = cooFilenamle;
+		std::ifstream file(filename);
+		if (!file) {
+			std::cerr << "Unable to open file: " << filename << std::endl;
+			return 1;  // Return an error code
+		}
+
+		if (!(file >> x0 >> y0 >> x1 >> y1 >> x2 >> y2 >> x3 >> y3)) {
+			std::cerr << "Error: file doesn't contain 8 integers" << std::endl;
+			return 1;  // Return an error code
+		}
+
+		// Print the values
+		std::cout << x0 << '\n' << y0 << '\n' << x1 << '\n' << y1 << '\n' << x2 << '\n' << y2 << '\n' << x3 << '\n' << y3 << '\n';
+	}
+	else
+	{
+		printf("argc = 3\n");
+		//display the grid in full screen
+		x0 = 0;
+		y0 = 0;
+		x1 = sudokuImage.cols;
+		y1 = 0;
+		x2 = 0;
+		y2 = sudokuImage.rows;
+		x3 = sudokuImage.cols;
+		y3 = sudokuImage.rows;
+	}
+	
+	
 //------End of reading the coo file--------------------------------
 
 

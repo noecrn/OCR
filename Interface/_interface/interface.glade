@@ -20,7 +20,7 @@
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="pixbuf">rotate_image.png</property>
+            <property name="pixbuf">inserer_une_image.png</property>
           </object>
           <packing>
             <property name="x">33</property>
@@ -124,7 +124,7 @@
         </child>
         <child>
           <object class="GtkButton" id="saveButton">
-            <property name="label" translatable="yes">Save</property>
+            <property name="label" translatable="yes">SaveFile</property>
             <property name="width-request">240</property>
             <property name="height-request">80</property>
             <property name="visible">True</property>

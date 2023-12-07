@@ -4,6 +4,7 @@
 char *rotate_filename = ".rotate_image.png";
 char *solve_filename = "solved_grid.png";
 char *grid_filename = "grid_detection.png";
+char *sudoku_grid_filename = "sudoku_grid.jpg";
 char *global_filename = NULL;
 
 GtkWidget *rotateLeftButton;
@@ -49,7 +50,7 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
 
         if (pixbuf != NULL) {
             // Set the desired maximum size (for example, width of 200 pixels)
-            int max_width = 800;
+            int max_width = 900;
             int width = gdk_pixbuf_get_width(pixbuf);
             int height = gdk_pixbuf_get_height(pixbuf);
 
@@ -101,7 +102,7 @@ void load_image_rotate(const char *filename, gpointer user_data) {
 
     if (pixbuf != NULL) {
         // Set the desired maximum size (for example, width of 200 pixels)
-        int max_width = 500;
+        int max_width = 900;
         int width = gdk_pixbuf_get_width(pixbuf);
         int height = gdk_pixbuf_get_height(pixbuf);
 
@@ -140,7 +141,7 @@ void load_image_solve(const char *filename, gpointer user_data) {
 
     if (pixbuf != NULL) {
         // Set the desired maximum size (for example, width of 200 pixels)
-        int max_width = 500;
+        int max_width = 900;
         int width = gdk_pixbuf_get_width(pixbuf);
         int height = gdk_pixbuf_get_height(pixbuf);
 
@@ -179,7 +180,7 @@ void load_image_grid(const char *filename, gpointer user_data) {
 
     if (pixbuf != NULL) {
         // Set the desired maximum size (for example, width of 200 pixels)
-        int max_width = 500;
+        int max_width = 900;
         int width = gdk_pixbuf_get_width(pixbuf);
         int height = gdk_pixbuf_get_height(pixbuf);
 
@@ -204,6 +205,47 @@ void load_image_grid(const char *filename, gpointer user_data) {
         g_object_unref(pixbuf);
         g_object_unref(scaled_pixbuf);
         printf("Filename: %s\n", solve_filename);
+    }
+}
+
+void load_sudoku_grid(const char *filename, gpointer user_data) {
+    GtkWidget *imageWidget = GTK_WIDGET(user_data);
+
+    printf("Load sudoku grid\n");
+
+    // Load the image into a GdkPixbuf object
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(grid_filename, NULL);
+
+    // Cast user_data to GtkImage
+    GtkImage *image = GTK_IMAGE(user_data);
+
+    if (pixbuf != NULL) {
+        // Set the desired maximum size (for example, width of 200 pixels)
+        int max_width = 900;
+        int width = gdk_pixbuf_get_width(pixbuf);
+        int height = gdk_pixbuf_get_height(pixbuf);
+
+        // Calculate the new height while maintaining the ratio
+        int new_width, new_height;
+        if (width > max_width) {
+            new_width = max_width;
+            new_height = (height * max_width) / width;
+        } else {
+            new_width = width;
+            new_height = height;
+        }
+
+        // Resize the image
+        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, new_width, 
+        new_height, GDK_INTERP_BILINEAR);
+
+        // Display the resized image in the GtkImage widget
+        gtk_image_set_from_pixbuf(image, scaled_pixbuf);
+
+        // Free the memory allocated for the GdkPixbufs
+        g_object_unref(pixbuf);
+        g_object_unref(scaled_pixbuf);
+        printf("Filename: %s\n", sudoku_grid_filename);
     }
 }
 
@@ -236,16 +278,8 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
 }
 
 void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
-    // Use the system() function to execute the rotation program
-    char solve_command[256];
-    //sprintf(solve_command, "../solve/solve .rotate_image.png solved_grid.png");
-    int status = system(solve_command);
+    int result = system("./../../solver/solver ../../display/grid_00");
 
-    if (status != 0) {
-        // Handle errors from executing the rotation program
-        g_print("Error executing the rotation program.\n");
-    }
-    
     // disable the rotate buttons
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
@@ -284,7 +318,7 @@ void unhide_file() {
     }
 }
 
-void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
+void on_saveGridButton_clicked(GtkWidget *widget, gpointer data) {
     int sudokuGrid[9][9];
 
     for (int i = 0; i < 9; i++) {
@@ -330,12 +364,15 @@ void on_saveButton_clicked(GtkWidget *widget, gpointer data) {
 
     // Execute the display_solved file
     int result = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00");
+
+    // Call load_sudoku_grid after your existing code
+    load_sudoku_grid(sudoku_grid_filename, data);
 }
 
 void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Enter Sudoku Grid");
-    gtk_window_set_default_size(GTK_WINDOW(window), 200, 200);
+    gtk_window_set_default_size(GTK_WINDOW(window), 600, 600);
 
     GtkWidget *grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
@@ -344,14 +381,15 @@ void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
         for (int j = 0; j < 9; j++) {
             entry[i][j] = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry[i][j]), 1); 
-            gtk_entry_set_width_chars(GTK_ENTRY(entry[i][j]), 2);  // Set width of text input field
+            gtk_entry_set_width_chars(GTK_ENTRY(entry[i][j]), 7);  // Set width of text input field
+            gtk_widget_set_size_request(entry[i][j], -1, 70);  // Set height of text input field
             gtk_grid_attach(GTK_GRID(grid), entry[i][j], j, i, 1, 1);
         }
     }
 
-    GtkWidget *saveButton = gtk_button_new_with_label("Save");
-    gtk_grid_attach(GTK_GRID(grid), saveButton, 0, 9, 9, 1);
-    g_signal_connect(saveButton, "clicked", G_CALLBACK(on_saveButton_clicked), NULL);
+    GtkWidget *saveGridButton = gtk_button_new_with_label("Save");
+    gtk_grid_attach(GTK_GRID(grid), saveGridButton, 0, 9, 9, 1);
+    g_signal_connect(saveGridButton, "clicked", G_CALLBACK(on_saveGridButton_clicked), NULL);
 
     gtk_widget_show_all(window);
 }
