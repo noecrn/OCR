@@ -256,7 +256,7 @@ void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
     angle = angle + 5;
     char rotation_command_left[256];
     sprintf(rotation_command_left, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
-	printf("%d", global_filename);
+	printf("%s", global_filename);
     int status = system(rotation_command_left);
 
     if (status != 0) {
@@ -280,13 +280,19 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
 
 void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
     // Execute the solver file
-    int result = system("./../../solver/solver ../../display/grid_00");
+    char command_solver[256];
+    sprintf(command_solver, "./../../solver/solver ../../display/grid_00");
+    //int result = system("./../../solver/solver ../../display/grid_00");
 
     // Execute the detection file
-    int result1 = system("./../../detection/prog %s", global_filename);
+    char command_detection[256];
+    sprintf(command_detection, "./../../detection/prog %s", global_filename);
+    //int result1 = system("./../../detection/prog %s", global_filename);
 
     // Execute the display_solved file
-    int result2 = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
+    char command_display[256];
+    sprintf(command_display, "./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
+    //int result2 = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
 
     // disable the rotate buttons
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
