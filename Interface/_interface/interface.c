@@ -256,6 +256,7 @@ void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
     angle = angle + 5;
     char rotation_command_left[256];
     sprintf(rotation_command_left, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
+	printf("%d", global_filename);
     int status = system(rotation_command_left);
 
     if (status != 0) {
