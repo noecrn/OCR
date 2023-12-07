@@ -279,7 +279,14 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
 }
 
 void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
+    // Execute the solver file
     int result = system("./../../solver/solver ../../display/grid_00");
+
+    // Execute the detection file
+    int result1 = system("./../../detection/prog %s", global_filename);
+
+    // Execute the display_solved file
+    int result2 = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
 
     // disable the rotate buttons
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
