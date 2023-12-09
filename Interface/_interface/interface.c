@@ -1,7 +1,10 @@
 #include <gtk/gtk.h>
 //#include "../display/display_solved.h"
 
-char *rotate_filename = ".rotate_image.png";
+
+
+
+char *rotate_filename = "rotate_image.png";
 char *solve_filename = "solved_grid.png";
 char *grid_filename = "grid_detection.png";
 char *sudoku_grid_filename = "sudoku_grid.jpg";
@@ -42,6 +45,10 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
         char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
         global_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
+        char copy[256];
+        sprintf(copy, "cp %s original.png", global_filename);
+        system(copy);
+
         // Load the image into a GdkPixbuf object
         GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
 
@@ -76,6 +83,8 @@ void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
             g_object_unref(scaled_pixbuf);
             printf("Filename: %s\n", filename);
         }
+
+
 
         // Libérez la mémoire allouée pour le nom du fichier
         g_free(filename);
@@ -255,7 +264,7 @@ void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
     angle = angle + 5;
     char rotation_command_left[256];
-    sprintf(rotation_command_left, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
+    sprintf(rotation_command_left, "../image_transform/save %s %d rotate_image.png", global_filename, angle);
 	printf("%s", global_filename);
     int status = system(rotation_command_left);
 
@@ -269,7 +278,7 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
     // Use the system() function to execute the rotation program
     angle = angle - 5;
     char rotation_command_right[256];
-    sprintf(rotation_command_right, "../rotate/save %s %d .rotate_image.png", global_filename, angle);
+    sprintf(rotation_command_right, "../image_transform/save %s %d rotate_image.png", global_filename, angle);
     int status = system(rotation_command_right);
 
     if (status != 0) {
@@ -279,20 +288,97 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
 }
 
 void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
+    char pre_process[256];
+    sprintf(pre_process, "./../pre_process/save %s set1", global_filename);
+    int status = system(pre_process);
+    if(status != 0)printf("c la merde1");
+
+    char open_file[256];
+    sprintf(open_file, "gedit output");
+    int status1 = system(pre_process);
+    if (status1 =! 0){
+        printf("merde");
+    }
+
+    // Create a confirmation dialog
+    GtkWidget *dialog_grid = gtk_dialog_new_with_buttons("Grid confirmation",
+                                                         NULL,
+                                                         GTK_DIALOG_MODAL,
+                                                         "Yes",
+                                                         GTK_RESPONSE_YES,
+                                                         "Enter manually",
+                                                         GTK_RESPONSE_NO,
+                                                         NULL); // NULL sentinel
+
+    // Set the default size of the dialog
+    gtk_window_set_default_size(GTK_WINDOW(dialog_grid), 200, 100);
+
+    // Set the border width (margin) of the dialog
+    gtk_container_set_border_width(GTK_CONTAINER(dialog_grid), 10);
+
+    // Create a label and add it to the dialog's content area
+    GtkWidget *label = gtk_label_new("Is the grid correctly detected?");
+    gtk_widget_set_size_request(label, 180, 100);  // Set the size of the label
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog_grid));
+    gtk_container_add(GTK_CONTAINER(content_area), label);
+    gtk_widget_show(label);
+
+    // Create a box for the buttons
+    GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(button_box, GTK_ALIGN_CENTER);
+
+    // Add the box to the dialog's content area
+    gtk_container_add(GTK_CONTAINER(content_area), button_box);
+    gtk_widget_show(button_box);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog_grid), GTK_RESPONSE_YES);
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog_grid));
+
+    if (response == GTK_RESPONSE_NO) {
+    gtk_widget_destroy(dialog_grid);
+    }
+    else{
+    gtk_widget_destroy(dialog_grid);}
+    printf("Grid is correctly detected\n");
+
+        char detection[256];
+        sprintf(detection, "./../temp/prog result.png original.png");
+        status = system(detection);
+        if(status != 0)printf("c la merde2");
+
+
+
+    /*
+    char parser[256];
+    sprintf(parser, "./../pre_process/read_image");
+    status = system(parser);
+    if(status != 0)printf("c la merde3");
+
+    char solver[256];
+    sprintf(solver, "./../solver/solver output");
+    status = system(solver);
+    if(status != 0)printf("c la merde4");
+    */
+
+    solve_filename = "original.png";
+
     // Execute the solver file
-    char command_solver[256];
-    sprintf(command_solver, "./../../solver/solver ../../display/grid_00");
+    // char command_solver[256];
+    // sprintf(command_solver, "../solver/solver ../display/grid_00");
+
     //int result = system("./../../solver/solver ../../display/grid_00");
 
     // Execute the detection file
-    char command_detection[256];
-    sprintf(command_detection, "./../../detection/prog %s", global_filename);
-    //int result1 = system("./../../detection/prog %s", global_filename);
+    // char command_detection[256];
+    // sprintf(command_detection, "./../../detection/prog %s", global_filename);
+    // int result1 = system("./../../detection/prog %s", global_filename);
 
     // Execute the display_solved file
-    char command_display[256];
-    sprintf(command_display, "./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
-    //int result2 = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
+    // char command_display[256];
+    // sprintf(command_display, "./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
+    // int result2 = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00 ../../display/co");
 
     // disable the rotate buttons
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
@@ -301,6 +387,33 @@ void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
 
 void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data); 
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+//refaire la grille et l'afficher 
+
+
+
+
+
+
+
+
+
+
+
+
 
     printf("Grid button clicked\n");
 
@@ -346,7 +459,7 @@ void on_saveGridButton_clicked(GtkWidget *widget, gpointer data) {
         }
     }
 
-    FILE *file = fopen("../../display/grid_00", "w");
+    FILE *file = fopen("../temp/grid_00", "w");
     if (!file) {
         printf("Error opening file\n");
         return;
@@ -379,8 +492,6 @@ void on_saveGridButton_clicked(GtkWidget *widget, gpointer data) {
     // Execute the display_solved file
     int result = system("./../../display/display_solved sudoku_image.jpg ../../display/grid_00");
 
-    // Call load_sudoku_grid after your existing code
-    load_sudoku_grid(sudoku_grid_filename, data);
 }
 
 void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
@@ -406,6 +517,12 @@ void on_enterButton_clicked(GtkWidget *widget, gpointer data) {
     g_signal_connect(saveGridButton, "clicked", G_CALLBACK(on_saveGridButton_clicked), NULL);
 
     gtk_widget_show_all(window);
+
+        // disable the rotate buttons
+    gtk_widget_set_sensitive(GTK_WIDGET(solveButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(saveButton), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gridButton), TRUE);
+
 }
 
 int main(int argc, char *argv[]) {
@@ -448,7 +565,7 @@ int main(int argc, char *argv[]) {
 
     gridButton = GTK_WIDGET(gtk_builder_get_object(builder, "gridButton"));
     g_signal_connect(gridButton, "clicked", G_CALLBACK(load_image_grid), imageWidget);
-    g_signal_connect(gridButton, "clicked", G_CALLBACK(on_gridButton_clicked), NULL);
+    g_signal_connect(gridButton, "clicked", G_CALLBACK(load_sudoku_grid), NULL);
 
     GtkWidget *enterButton = GTK_WIDGET(gtk_builder_get_object(builder, "enterButton"));
     g_signal_connect(enterButton, "clicked", G_CALLBACK(on_enterButton_clicked), NULL);
@@ -472,3 +589,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
