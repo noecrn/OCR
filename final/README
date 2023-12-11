@@ -1,0 +1,5 @@
+# OCR Sudoku Solver
+
+This project is an OCR (Optical Character Recognition) application that can solve Sudoku puzzles. It uses computer vision techniques to recognize the digits in the Sudoku, and then applies a backtracking algorithm to solve the sudoku.
+
+
