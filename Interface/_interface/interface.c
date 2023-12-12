@@ -21,6 +21,8 @@ void load_image_rotate(const char *filename, gpointer user_data);
 void on_loadButton_clicked(GtkButton *button, gpointer user_data);
 void on_rotateLeftButton_clicked(GtkButton *button, gpointer user_data);
 void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data);
+void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data);
+void error_dialog(GtkButton *button, gpointer user_data);
 
 void on_loadButton_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data); 
@@ -288,65 +290,22 @@ void on_rotateRightButton_clicked(GtkButton *button, gpointer user_data) {
 }
 
 void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
-    char pre_process[256];
-    sprintf(pre_process, "./../pre_process/save %s set1", global_filename);
-    int status = system(pre_process);
-    if(status != 0)printf("c la merde1");
+    
 
-    char open_file[256];
-    sprintf(open_file, "gedit output");
-    int status1 = system(pre_process);
-    if (status1 =! 0){
-        printf("merde");
-    }
+    char detection[256];
+    sprintf(detection, "./../temp/prog result.png original.png");
+    int status = system(detection);
+    if(status != 0){
+        error_dialog(button, user_data);
 
-    // Create a confirmation dialog
-    GtkWidget *dialog_grid = gtk_dialog_new_with_buttons("Grid confirmation",
-                                                         NULL,
-                                                         GTK_DIALOG_MODAL,
-                                                         "Yes",
-                                                         GTK_RESPONSE_YES,
-                                                         "Enter manually",
-                                                         GTK_RESPONSE_NO,
-                                                         NULL); // NULL sentinel
 
-    // Set the default size of the dialog
-    gtk_window_set_default_size(GTK_WINDOW(dialog_grid), 200, 100);
-
-    // Set the border width (margin) of the dialog
-    gtk_container_set_border_width(GTK_CONTAINER(dialog_grid), 10);
-
-    // Create a label and add it to the dialog's content area
-    GtkWidget *label = gtk_label_new("Is the grid correctly detected?");
-    gtk_widget_set_size_request(label, 180, 100);  // Set the size of the label
-    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog_grid));
-    gtk_container_add(GTK_CONTAINER(content_area), label);
-    gtk_widget_show(label);
-
-    // Create a box for the buttons
-    GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign(button_box, GTK_ALIGN_CENTER);
-
-    // Add the box to the dialog's content area
-    gtk_container_add(GTK_CONTAINER(content_area), button_box);
-    gtk_widget_show(button_box);
-
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog_grid), GTK_RESPONSE_YES);
-
-    gint response = gtk_dialog_run(GTK_DIALOG(dialog_grid));
-
-    if (response == GTK_RESPONSE_NO) {
-    gtk_widget_destroy(dialog_grid);
-    }
-    else{
-    gtk_widget_destroy(dialog_grid);}
-    printf("Grid is correctly detected\n");
-
-        char detection[256];
-        sprintf(detection, "./../temp/prog result.png original.png");
-        status = system(detection);
-        if(status != 0)printf("c la merde2");
+        char open_file[256];
+        sprintf(open_file, "gedit output");
+        int status1 = system(open_file);
+        if (status1 != 0){
+            printf("merde");
+        }
+    };
 
 
 
@@ -384,6 +343,45 @@ void on_solveButton_clicked(GtkButton *button, gpointer user_data) {
     gtk_widget_set_sensitive(GTK_WIDGET(rotateLeftButton), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(rotateRightButton), FALSE);
 }
+
+void error_dialog(GtkButton *button, gpointer user_data){
+    GtkWidget *dialog_grid = gtk_dialog_new_with_buttons("Grid confirmation",
+                                                         NULL,
+                                                         GTK_DIALOG_MODAL,
+                                                         "Ok",
+                                                         GTK_RESPONSE_YES,
+                                                         NULL); // NULL sentinel
+
+    // Create a new label with a text
+    GtkWidget *label = gtk_label_new("The grid was not correctly detected, please modify the grid in the file 'output' and save it.");
+
+    // Get the content area of the dialog
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog_grid));
+
+    // Add the label to the content area of the dialog
+    gtk_box_pack_start(GTK_BOX(content_area), label, TRUE, TRUE, 0);
+
+    // Show the label
+    gtk_widget_show(label);
+
+    // Connect the "response" signal of the dialog to a callback function
+    //g_signal_connect(dialog_grid, "response", G_CALLBACK(on_dialog_response), NULL);
+
+    // Show the dialog
+    gtk_widget_show_all(dialog_grid);
+
+    // Run the dialog
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog_grid));
+
+    // Handle the response
+    if (response == GTK_RESPONSE_YES) {
+
+    }
+
+    gtk_widget_destroy(dialog_grid);
+}
+
+
 
 void on_gridButton_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *imageWidget = GTK_WIDGET(user_data); 
